@@ -7,9 +7,9 @@ from subsectorMap import ssMap
 
 def main():
     screenWidth = 100
-    screenHeight = 63
+    screenHeight = 64
     mapWidth = 76
-    mapHeight = 63
+    mapHeight = 64
 
     colors = {
         'HexDivider': libtcod.Color(100, 100, 100),

@@ -35,12 +35,12 @@ class ssMap:
         # Create the Hex Grid
         for x in range(4):
             for y in range(10):
-                self.create_hex(Hex(18*x+6, 6*y+2))
-                self.world_gen(Hex(18*x+6, 6*y+2), entities)
+                self.create_hex(Hex(18*x+6, 6*y+3))
+                self.world_gen(Hex(18*x+6, 6*y+3), entities)
         for x in range(4):
             for y in range(10):
-                self.create_hex(Hex(18*x+15, 6*y+5))
-                self.world_gen(Hex(18*x+15, 6*y+5), entities)
+                self.create_hex(Hex(18*x+15, 6*y+6))
+                self.world_gen(Hex(18*x+15, 6*y+6), entities)
 
     def world_gen(self, room, entities):
         if randint(0, 1) == 1:
