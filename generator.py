@@ -8,7 +8,7 @@ from subsectorMap import ssMap
 def main():
     screenWidth = 100
     screenHeight = 63
-    mapWidth = 58
+    mapWidth = 76
     mapHeight = 63
 
     colors = {
