@@ -45,10 +45,9 @@ class ssMap:
 
     def world_gen(self, room, entities):
         if randint(0, 1) == 1:
-            populated_hex = Entity(room.x, room.y - 1, 'O', libtcod.white)
-            entities.append(populated_hex)
+
             if randint(1, 6) + randint(1, 6) < 11:
-                GasGiant = Entity(room.x+2, room.y-1, 'G', libtcod.dark_orange)
+                GasGiant = Entity(room.x+2, room.y-1, 'G', libtcod.dark_orange, 'Gas Giant')
                 entities.append(GasGiant)
 
             """
@@ -315,31 +314,41 @@ class ssMap:
             Travel Code Display
             """
             # Starport
-            tcSPort = Entity(room.x - 5, room.y, str(stardes), libtcod.white)
+            tcSPort = Entity(room.x - 5, room.y, str(stardes), libtcod.white, 'Starport Grade')
             entities.append(tcSPort)
             # Size, Atmo, Hydro, Pop, Gov't, Law
-            tcSize = Entity(room.x - 3, room.y, str(sizdes), libtcod.white)
+            tcSize = Entity(room.x - 3, room.y, str(sizdes), libtcod.white, 'Size')
             entities.append(tcSize)
-            tcAtmo = Entity(room.x - 2, room.y, str(atmodes), libtcod.white)
+            tcAtmo = Entity(room.x - 2, room.y, str(atmodes), libtcod.white, 'Atmosphere')
             entities.append(tcAtmo)
-            tcHydro = Entity(room.x - 1, room.y, str(wetness), libtcod.white)
+            tcHydro = Entity(room.x - 1, room.y, str(wetness), libtcod.white, 'Hydrographics')
             entities.append(tcHydro)
-            tcPop = Entity(room.x, room.y, str(popdes), libtcod.white)
+            tcPop = Entity(room.x, room.y, str(popdes), libtcod.white, 'Population')
             entities.append(tcPop)
-            tcGovt = Entity(room.x + 1, room.y, str(govtdes), libtcod.white)
+            tcGovt = Entity(room.x + 1, room.y, str(govtdes), libtcod.white, 'Government')
             entities.append(tcGovt)
-            tcLaw = Entity(room.x + 2, room.y, str(lawdes), libtcod.white)
+            tcLaw = Entity(room.x + 2, room.y, str(lawdes), libtcod.white, 'Law Level')
             entities.append(tcLaw)
             # A dash (-)
-            hyphon = Entity(room.x + 3, room.y, 45, libtcod.white)
+            hyphon = Entity(room.x + 3, room.y, 45, libtcod.white, '-')
             entities.append(hyphon)
             # Tech Level
             stringTL = str(finalTL)
             if finalTL > 9:
-                TLev1 = Entity(room.x + 4, room.y, stringTL[:1], libtcod.white)
+                TLev1 = Entity(room.x + 4, room.y, stringTL[:1], libtcod.white, 'Tech Level')
                 entities.append(TLev1)
-                TLev2 = Entity(room.x + 5, room.y, stringTL[:-1], libtcod.white)
+                TLev2 = Entity(room.x + 5, room.y, stringTL[:-1], libtcod.white, 'Tech Level')
                 entities.append(TLev2)
             else:
-                TLev = Entity(room.x + 5, room.y, str(finalTL), libtcod.white)
+                TLev = Entity(room.x + 5, room.y, str(finalTL), libtcod.white, 'Tech Level')
                 entities.append(TLev)
+
+            # Display other entities in the Hex
+            placeholder_hex_name = 'Placeholder for Testing'
+            if size == 0:
+                populated_hex = Entity(room.x, room.y - 1, '+', libtcod.white, placeholder_hex_name)
+            elif size < 8:
+                populated_hex = Entity(room.x, room.y - 1, 'o', libtcod.white, placeholder_hex_name)
+            else:
+                populated_hex = Entity(room.x, room.y - 1, 'O', libtcod.white, placeholder_hex_name)
+            entities.append(populated_hex)
