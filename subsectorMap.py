@@ -4,6 +4,7 @@ from random import randint
 from tile import Tile
 from shapes import Hex
 from entity import Entity
+from richard_help import clamp
 
 
 class ssMap:
@@ -175,6 +176,12 @@ class ssMap:
                 popdes = 'B'
             elif population == 12:
                 popdes = 'C'
+            elif population == 13:
+                popdes = 'D'
+            elif population == 14:
+                popdes = 'E'
+            elif population == 15:
+                popdes = 'F'
             else:
                 popdes = population
 
@@ -189,7 +196,7 @@ class ssMap:
                 govtdes = 'B'
             elif baseGovt == 12:
                 govtdes = 'C'
-            elif baseGovt == 13:
+            elif baseGovt >= 13:
                 govtdes = 'D'
             elif (baseGovt < 0) and (population > 5):
                 govtdes = 7
@@ -205,13 +212,7 @@ class ssMap:
             """
             Law Level
             """
-            baseLaw = randint(1, 6) + randint(1, 6) - 7 + baseGovt
-            if baseLaw < 0:
-                lawdes = 0
-            elif baseLaw > 9:
-                lawdes = 9
-            else:
-                lawdes = baseLaw
+            lawdes = clamp(0, randint(1, 6) + randint(1, 6) - 7 + baseGovt, 9)
 
             """
             Starport
@@ -342,8 +343,3 @@ class ssMap:
             else:
                 TLev = Entity(room.x + 5, room.y, str(finalTL), libtcod.white)
                 entities.append(TLev)
-
-            """
-            TLev = Entity(room.x + 4, room.y, str(TLdes), libtcod.white)
-            entities.append(TLev)
-            """
