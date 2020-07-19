@@ -332,7 +332,7 @@ class ssMap:
             # A dash (-)
             hyphon = Entity(room.x + 3, room.y, 45, libtcod.white)
             entities.append(hyphon)
-            #Tech Level
+            # Tech Level
             stringTL = str(finalTL)
             if finalTL > 9:
                 TLev1 = Entity(room.x + 4, room.y, stringTL[:1], libtcod.white)
@@ -342,7 +342,6 @@ class ssMap:
             else:
                 TLev = Entity(room.x + 5, room.y, str(finalTL), libtcod.white)
                 entities.append(TLev)
-
 
             """
             TLev = Entity(room.x + 4, room.y, str(TLdes), libtcod.white)

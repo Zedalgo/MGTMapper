@@ -12,7 +12,7 @@ def main():
     mapHeight = 64
 
     colors = {
-        'HexDivider': libtcod.Color(100, 100, 100),
+        'HexDivider': libtcod.Color(50, 50, 100),
         'HexInterior': libtcod.Color(5, 5, 5)
     }
 
