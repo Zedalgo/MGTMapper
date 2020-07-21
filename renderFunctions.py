@@ -1,5 +1,7 @@
 import tcod as libtcod
 
+from tile import Tile
+
 
 def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_color):
     bar_width = int(float(value) / maximum * total_width)
@@ -15,6 +17,7 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
     libtcod.console_print_ex(panel, int(x + total_width / 2), y, libtcod.BKGND_NONE, libtcod.CENTER,
                              name)
 
+
 def get_names_under_mouse(mouse, entities):
     (x, y) = (mouse.cx, mouse.cy)
 
@@ -23,7 +26,29 @@ def get_names_under_mouse(mouse, entities):
 
     return names.capitalize()
 
-def render_all(con, panel, entities, game_map, screenWidth, screenHeight, colors, mouse, panelWidth, panel_x):
+
+def get_hex_x_under_mouse(mouse, game_map, mapWidth, mapHeight):
+    (x, y) = (mouse.cx, mouse.cy)
+
+    if y >= mapHeight or x >= mapWidth:
+        return ' '
+    else:
+        hexx = game_map.tiles[x]
+        return str(hexx)
+
+
+def get_hex_y_under_mouse(mouse, game_map, mapWidth, mapHeight):
+    (x, y) = (mouse.cx, mouse.cy)
+
+    if y >= mapHeight or x >= mapWidth:
+        return ' '
+    else:
+        hexy = game_map.tiles[y]
+        return str(hexy)
+
+
+def render_all(con, panel, entities, game_map, screenWidth, screenHeight, colors, mouse, panelWidth, panel_x,
+               mapWidth, mapHeight):
     # Draw all the tiles in the game map
     for y in range(game_map.height):
         for x in range(game_map.width):
@@ -40,6 +65,8 @@ def render_all(con, panel, entities, game_map, screenWidth, screenHeight, colors
 
     # Hopefully shows the name of a world under the mouse
     entity_name = get_names_under_mouse(mouse, entities)
+    hex__x = get_hex_x_under_mouse(mouse, game_map, mapWidth, mapHeight)
+    hex__y = get_hex_y_under_mouse(mouse, game_map, mapWidth, mapHeight)
 
     libtcod.console_blit(con, 0, 0, screenWidth, screenHeight, 0, 0, 0)
 
@@ -47,6 +74,8 @@ def render_all(con, panel, entities, game_map, screenWidth, screenHeight, colors
     libtcod.console_clear(panel)
 
     render_bar(panel, 1, 1, 10, entity_name, 8, 10, libtcod.red, libtcod.darker_red)
+    render_bar(panel, 1, 2, 10, hex__x, 8, 10, libtcod.red, libtcod.darker_red)
+    render_bar(panel, 1, 3, 10, hex__y, 8, 10, libtcod.red, libtcod.darker_red)
     libtcod.console_blit(panel, 0, 0, panelWidth, screenHeight, 0, panel_x, 0)
 
 

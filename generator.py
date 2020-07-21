@@ -36,7 +36,8 @@ def main():
 
         libtcod.console_set_default_foreground(0, libtcod.white)
         libtcod.console_blit(con, 0, 0, screenWidth, screenHeight, 0, 0, 0)
-        render_all(con, panel, entities, subsectorMap, screenWidth, screenHeight, colors, mouse, panelWidth, panel_x)
+        render_all(con, panel, entities, subsectorMap, screenWidth, screenHeight, colors, mouse, panelWidth, panel_x,
+                   mapWidth, mapHeight)
         libtcod.console_flush()
         clear_all(con, entities)
 
@@ -54,6 +55,7 @@ def main():
 
         if fullscreen:
             libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
+
 
 if __name__ == '__main__':
     main()

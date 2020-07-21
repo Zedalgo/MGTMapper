@@ -24,6 +24,8 @@ class ssMap:
             for y in range(room.y - 2, room.y + 3):
                 self.tiles[x][y].blocked = False
                 self.tiles[x][y].block_sight = False
+                self.tiles[x][y].hex_x = room.x
+                self.tiles[x][y].hex_y = room.y
         for x in range(room.x - 4, room.x + 5):
             for y in range(room.y - 1, room.y + 2):
                 self.tiles[x][y].blocked = False
