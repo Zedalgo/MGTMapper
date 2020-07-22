@@ -1,7 +1,7 @@
 import tcod as libtcod
 
 from random import randint
-from tile import Tile
+from tile import Tile, HexInfo
 from shapes import Hex
 from entity import Entity
 from richard_help import clamp
@@ -18,14 +18,14 @@ class ssMap:
 
         return tiles
 
-    def create_hex(self, room):
+    def create_hex(self, room, hexes, grid_x, grid_y):
         # Generates a hex shape using 3 rectangles
         for x in range(room.x - 3, room.x + 4):
             for y in range(room.y - 2, room.y + 3):
                 self.tiles[x][y].blocked = False
                 self.tiles[x][y].block_sight = False
-                self.tiles[x][y].hex_x = room.x
-                self.tiles[x][y].hex_y = room.y
+                hex_data = HexInfo(x, y, grid_x, grid_y)
+                hexes.append(hex_data)
         for x in range(room.x - 4, room.x + 5):
             for y in range(room.y - 1, room.y + 2):
                 self.tiles[x][y].blocked = False
@@ -34,15 +34,19 @@ class ssMap:
             self.tiles[x][room.y].blocked = False
             self.tiles[x][room.y].block_sight = False
 
-    def make_map(self, entities):
+    def make_map(self, entities, hexes):
         # Create the Hex Grid
         for x in range(4):
             for y in range(10):
-                self.create_hex(Hex(18*x+6, 6*y+3))
+                grid_x = 2 * (x + 1) - 1
+                grid_y = y + 1
+                self.create_hex(Hex(18*x+6, 6*y+3),hexes, grid_x, grid_y)
                 self.world_gen(Hex(18*x+6, 6*y+3), entities)
         for x in range(4):
             for y in range(10):
-                self.create_hex(Hex(18*x+15, 6*y+6))
+                grid_x = 2*(x + 1)
+                grid_y = y + 1
+                self.create_hex(Hex(18*x+15, 6*y+6),hexes, grid_x, grid_y)
                 self.world_gen(Hex(18*x+15, 6*y+6), entities)
 
     def world_gen(self, room, entities):

@@ -27,27 +27,29 @@ def get_names_under_mouse(mouse, entities):
     return names.capitalize()
 
 
-def get_hex_x_under_mouse(mouse, game_map, mapWidth, mapHeight):
+def get_hex_x_under_mouse(mouse, hexes, mapWidth, mapHeight):
     (x, y) = (mouse.cx, mouse.cy)
 
     if y >= mapHeight or x >= mapWidth:
         return ' '
     else:
-        hexx = game_map.tiles[x]
-        return str(hexx)
+        namex = [HexInfo.hex_x for HexInfo in hexes if HexInfo.x == x and HexInfo.y == y]
+
+        return str(namex)
 
 
-def get_hex_y_under_mouse(mouse, game_map, mapWidth, mapHeight):
+def get_hex_y_under_mouse(mouse, hexes, mapWidth, mapHeight):
     (x, y) = (mouse.cx, mouse.cy)
 
     if y >= mapHeight or x >= mapWidth:
         return ' '
     else:
-        hexy = game_map.tiles[y]
-        return str(hexy)
+        namey = [HexInfo.hex_y for HexInfo in hexes if HexInfo.x == x and HexInfo.y == y]
+
+        return str(namey)
 
 
-def render_all(con, panel, entities, game_map, screenWidth, screenHeight, colors, mouse, panelWidth, panel_x,
+def render_all(con, panel, entities, hexes, game_map, screenWidth, screenHeight, colors, mouse, panelWidth, panel_x,
                mapWidth, mapHeight):
     # Draw all the tiles in the game map
     for y in range(game_map.height):
@@ -65,8 +67,8 @@ def render_all(con, panel, entities, game_map, screenWidth, screenHeight, colors
 
     # Hopefully shows the name of a world under the mouse
     entity_name = get_names_under_mouse(mouse, entities)
-    hex__x = get_hex_x_under_mouse(mouse, game_map, mapWidth, mapHeight)
-    hex__y = get_hex_y_under_mouse(mouse, game_map, mapWidth, mapHeight)
+    hex__x = get_hex_x_under_mouse(mouse, hexes, mapWidth, mapHeight)
+    hex__y = get_hex_y_under_mouse(mouse, hexes, mapWidth, mapHeight)
 
     libtcod.console_blit(con, 0, 0, screenWidth, screenHeight, 0, 0, 0)
 
