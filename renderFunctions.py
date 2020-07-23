@@ -18,6 +18,11 @@ def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_c
                              name)
 
 
+def render_string(panel, x, y, name):
+    libtcod.console_print_ex(panel, int(len(name) / 2), y, libtcod.BKGND_NONE, libtcod.CENTER,
+                             name)
+
+
 def get_names_under_mouse(mouse, entities):
     (x, y) = (mouse.cx, mouse.cy)
 
@@ -45,7 +50,7 @@ def get_hex_y_under_mouse(mouse, hexes, mapWidth, mapHeight):
         return ' '
     else:
         namey = [HexInfo.hex_y for HexInfo in hexes if HexInfo.x == x and HexInfo.y == y]
-
+        
         return str(namey)
 
 
@@ -65,8 +70,7 @@ def render_all(con, panel, entities, hexes, game_map, screenWidth, screenHeight,
     for entity in entities:
         draw_entity(con, entity)
 
-    # Hopefully shows the name of a world under the mouse
-    entity_name = get_names_under_mouse(mouse, entities)
+    # Will eventually show the name of a world under the mouse
     hex__x = get_hex_x_under_mouse(mouse, hexes, mapWidth, mapHeight)
     hex__y = get_hex_y_under_mouse(mouse, hexes, mapWidth, mapHeight)
 
@@ -75,7 +79,7 @@ def render_all(con, panel, entities, hexes, game_map, screenWidth, screenHeight,
     libtcod.console_set_default_background(panel, libtcod.black)
     libtcod.console_clear(panel)
 
-    render_bar(panel, 1, 1, 10, entity_name, 8, 10, libtcod.red, libtcod.darker_red)
+    render_string(panel, 1, 1, str(hex__x) + ', ' + str(hex__y))
     render_bar(panel, 1, 2, 10, hex__x, 8, 10, libtcod.red, libtcod.darker_red)
     render_bar(panel, 1, 3, 10, hex__y, 8, 10, libtcod.red, libtcod.darker_red)
     libtcod.console_blit(panel, 0, 0, panelWidth, screenHeight, 0, panel_x, 0)

@@ -5,6 +5,7 @@ from tile import Tile, HexInfo
 from shapes import Hex
 from entity import Entity
 from richard_help import clamp
+from dice_functions import roll
 
 
 class ssMap:
@@ -26,13 +27,28 @@ class ssMap:
                 self.tiles[x][y].block_sight = False
                 hex_data = HexInfo(x, y, grid_x, grid_y)
                 hexes.append(hex_data)
-        for x in range(room.x - 4, room.x + 5):
-            for y in range(room.y - 1, room.y + 2):
-                self.tiles[x][y].blocked = False
-                self.tiles[x][y].block_sight = False
-        for x in range(room.x - 5, room.x + 6):
-            self.tiles[x][room.y].blocked = False
-            self.tiles[x][room.y].block_sight = False
+        x_column_1 = room.x - 4
+        for y in range(room.y - 1, room.y + 2):
+            self.tiles[x_column_1][y].blocked = False
+            self.tiles[x_column_1][y].block_sight = False
+            hex_data = HexInfo(x_column_1, y, grid_x, grid_y)
+            hexes.append(hex_data)
+        x_column_2 = room.x + 4
+        for y in range(room.y - 1, room.y + 2):
+            self.tiles[x_column_2][y].blocked = False
+            self.tiles[x_column_2][y].block_sight = False
+            hex_data = HexInfo(x_column_2, y, grid_x, grid_y)
+            hexes.append(hex_data)
+        x_edge_1 = room.x - 5
+        x_edge_2 = room.x + 5
+        self.tiles[x_edge_1][room.y].blocked = False
+        self.tiles[x_edge_1][room.y].block_sight = False
+        self.tiles[x_edge_2][room.y].blocked = False
+        self.tiles[x_edge_2][room.y].block_sight = False
+        edge_data_1 = HexInfo(x_edge_1, room.y, grid_x, grid_y)
+        edge_data_2 = HexInfo(x_edge_2, room.y, grid_x, grid_y)
+        hexes.append(edge_data_1)
+        hexes.append(edge_data_2)
 
     def make_map(self, entities, hexes):
         # Create the Hex Grid
@@ -52,7 +68,7 @@ class ssMap:
     def world_gen(self, room, entities):
         if randint(0, 1) == 1:
 
-            if randint(1, 6) + randint(1, 6) < 11:
+            if roll(2, 6) < 11:
                 GasGiant = Entity(room.x+2, room.y-1, 'G', libtcod.dark_orange, 'Gas Giant')
                 entities.append(GasGiant)
 
@@ -60,7 +76,7 @@ class ssMap:
             World Size
             2d6-2
             """
-            size = randint(1, 6) + randint(1, 6) - 2
+            size = roll(2, 6) - 2
             if size < 10:
                 sizdes = size
             else:
@@ -70,7 +86,7 @@ class ssMap:
             Atmosphere
             2d6-7 + size
             """
-            atmo = randint(1, 6) + randint(1, 6) - 7 + size
+            atmo = roll(2, 6) - 7 + size
             if atmo < 0:
                 atmodes = 0
             elif atmo < 10:
