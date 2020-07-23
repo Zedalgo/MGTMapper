@@ -1,5 +1,5 @@
 import tcod as libtcod
-
+import re
 from tile import Tile
 
 
@@ -38,9 +38,9 @@ def get_hex_x_under_mouse(mouse, hexes, mapWidth, mapHeight):
     if y >= mapHeight or x >= mapWidth:
         return ' '
     else:
-        namex = [HexInfo.hex_x for HexInfo in hexes if HexInfo.x == x and HexInfo.y == y]
-
-        return str(namex)
+        namex = str([HexInfo.hex_x for HexInfo in hexes if HexInfo.x == x and HexInfo.y == y])
+        namex = re.sub("\[|\]", "", namex)  #Regex to filter out brackets.
+        return namex
 
 
 def get_hex_y_under_mouse(mouse, hexes, mapWidth, mapHeight):
@@ -49,9 +49,9 @@ def get_hex_y_under_mouse(mouse, hexes, mapWidth, mapHeight):
     if y >= mapHeight or x >= mapWidth:
         return ' '
     else:
-        namey = [HexInfo.hex_y for HexInfo in hexes if HexInfo.x == x and HexInfo.y == y]
-        
-        return str(namey)
+        namey = str([HexInfo.hex_y for HexInfo in hexes if HexInfo.x == x and HexInfo.y == y])
+        namey = re.sub("\[|\]", "", namey)
+        return namey
 
 
 def render_all(con, panel, entities, hexes, game_map, screenWidth, screenHeight, colors, mouse, panelWidth, panel_x,
