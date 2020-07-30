@@ -20,8 +20,9 @@ def main():
 
     entities = []
     hexes = []
+    planets = []
     subsectorMap = ssMap(mapWidth, mapHeight)
-    subsectorMap.make_map(entities, hexes)
+    subsectorMap.make_map(hexes, planets)
 
     key = libtcod.Key()
     mouse = libtcod.Mouse()
@@ -37,7 +38,7 @@ def main():
 
         libtcod.console_set_default_foreground(0, libtcod.white)
         libtcod.console_blit(con, 0, 0, screenWidth, screenHeight, 0, 0, 0)
-        render_all(con, panel, entities, hexes, subsectorMap, screenWidth, screenHeight, colors, mouse, panelWidth, panel_x,
+        render_all(con, panel, entities, hexes, planets, subsectorMap, screenWidth, screenHeight, colors, mouse, panelWidth, panel_x,
                    mapWidth, mapHeight)
         libtcod.console_flush()
         clear_all(con, entities)

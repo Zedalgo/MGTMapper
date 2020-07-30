@@ -1,6 +1,5 @@
 import tcod as libtcod
 import re
-from tile import Tile
 
 
 def render_bar(panel, x, y, total_width, name, value, maximum, bar_color, back_color):
@@ -39,7 +38,7 @@ def get_hex_x_under_mouse(mouse, hexes, mapWidth, mapHeight):
         return ' '
     else:
         namex = str([HexInfo.hex_x for HexInfo in hexes if HexInfo.x == x and HexInfo.y == y])
-        namex = re.sub("\[|\]", "", namex)  #Regex to filter out brackets.
+        namex = re.sub("\[|\]", "", namex)  # Regex to filter out brackets.
         return namex
 
 
@@ -54,7 +53,30 @@ def get_hex_y_under_mouse(mouse, hexes, mapWidth, mapHeight):
         return namey
 
 
-def render_all(con, panel, entities, hexes, game_map, screenWidth, screenHeight, colors, mouse, panelWidth, panel_x,
+def planet_y_mouse(mouse, hexes, planets, mapWidth, mapHeight):
+    (x, y) = (mouse.cx, mouse.cy)
+    xint = get_hex_x_under_mouse(mouse, hexes, mapWidth, mapHeight)
+    yint = get_hex_y_under_mouse(mouse, hexes, mapWidth, mapHeight)
+
+    if xint == '' or xint == ' ':
+        xint = 0
+    else:
+        xint = int(xint)
+
+    if yint == '' or yint == ' ':
+        yint = 0
+    else:
+        yint = int(yint)
+
+    if y >= mapHeight or x >= mapWidth:
+        return 'greb'
+    else:
+        gridy = str([World.grid_y for World in planets if World.grid_x == xint and World.grid_y == yint])
+        gridy = re.sub("\[|\]", "", gridy)
+        return gridy
+
+
+def render_all(con, panel, entities, hexes, planets, game_map, screenWidth, screenHeight, colors, mouse, panelWidth, panel_x,
                mapWidth, mapHeight):
     # Draw all the tiles in the game map
     for y in range(game_map.height):
@@ -73,6 +95,9 @@ def render_all(con, panel, entities, hexes, game_map, screenWidth, screenHeight,
     # Will eventually show the name of a world under the mouse
     hex__x = get_hex_x_under_mouse(mouse, hexes, mapWidth, mapHeight)
     hex__y = get_hex_y_under_mouse(mouse, hexes, mapWidth, mapHeight)
+    planet_y = planet_y_mouse(mouse, hexes, planets, mapWidth, mapHeight)
+
+    # print(planet_y)
 
     libtcod.console_blit(con, 0, 0, screenWidth, screenHeight, 0, 0, 0)
 
@@ -82,6 +107,7 @@ def render_all(con, panel, entities, hexes, game_map, screenWidth, screenHeight,
     render_string(panel, 1, 1, str(hex__x) + ', ' + str(hex__y))
     render_bar(panel, 1, 2, 10, hex__x, 8, 10, libtcod.red, libtcod.darker_red)
     render_bar(panel, 1, 3, 10, hex__y, 8, 10, libtcod.red, libtcod.darker_red)
+    render_bar(panel, 1, 4, 10, planet_y, 8, 10, libtcod.red, libtcod.darker_red)
     libtcod.console_blit(panel, 0, 0, panelWidth, screenHeight, 0, panel_x, 0)
 
 

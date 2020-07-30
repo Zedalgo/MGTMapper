@@ -1,11 +1,12 @@
 import tcod as libtcod
 
-from random import randint
-from tile import Tile, HexInfo
-from shapes import Hex
-from entity import Entity
-from richard_help import clamp
+from data_handlers import Planet
 from dice_functions import roll
+from entity import Entity
+from random import randint
+from richard_help import clamp
+from shapes import Hex
+from tile import Tile, HexInfo
 
 
 class ssMap:
@@ -50,224 +51,113 @@ class ssMap:
         hexes.append(edge_data_1)
         hexes.append(edge_data_2)
 
-    def make_map(self, entities, hexes):
+    def make_map(self, hexes, planets):
         # Create the Hex Grid
         for x in range(4):
             for y in range(10):
                 grid_x = 2 * (x + 1) - 1
                 grid_y = y + 1
-                self.create_hex(Hex(18*x+6, 6*y+3),hexes, grid_x, grid_y)
-                self.world_gen(Hex(18*x+6, 6*y+3), entities)
+                self.create_hex(Hex(18*x+6, 6*y+3), hexes, grid_x, grid_y)
+                self.world_gen(grid_x, grid_y, planets)
         for x in range(4):
             for y in range(10):
                 grid_x = 2*(x + 1)
                 grid_y = y + 1
-                self.create_hex(Hex(18*x+15, 6*y+6),hexes, grid_x, grid_y)
-                self.world_gen(Hex(18*x+15, 6*y+6), entities)
+                self.create_hex(Hex(18*x+15, 6*y+6), hexes, grid_x, grid_y)
+                self.world_gen(grid_x, grid_y, planets)
 
-    def world_gen(self, room, entities):
+    def world_gen(self, grid_x, grid_y, planets):
         if randint(0, 1) == 1:
-
+            # Gas Giant Check 2d6<11
             if roll(2, 6) < 11:
-                GasGiant = Entity(room.x+2, room.y-1, 'G', libtcod.dark_orange, 'Gas Giant')
-                entities.append(GasGiant)
+                gas_giant = True
+            else:
+                gas_giant = False
 
-            """
-            World Size
-            2d6-2
-            """
+            # Size 2d6-2
             size = roll(2, 6) - 2
-            if size < 10:
-                sizdes = size
+
+            # Atmosphere 2d6 - 7 + Size
+            atmosphere = clamp(0, roll(2, 6) - 7 + size, 15)
+
+            # Temperature
+            baseTemperature = roll(2, 6)
+            habitableZone = randint(1, 100)
+            habDM = 0
+
+            if atmosphere <= 3:
+                atmosphereDM = -2
+            elif atmosphere <= 5 or atmosphere == 14:
+                atmosphereDM = -1
+            elif atmosphere <= 7:
+                atmosphereDM = 0
+            elif atmosphere <= 9:
+                atmosphereDM = 1
+            elif atmosphere == 10 or atmosphere == 13 or atmosphere == 15:
+                atmosphereDM = 2
             else:
-                sizdes = 'A'
+                atmosphereDM = 6
 
-            """
-            Atmosphere
-            2d6-7 + size
-            """
-            atmo = roll(2, 6) - 7 + size
-            if atmo < 0:
-                atmodes = 0
-            elif atmo < 10:
-                atmodes = atmo
-            elif atmo == 10:
-                atmodes = 'A'
-            elif atmo == 11:
-                atmodes = 'B'
-            elif atmo == 12:
-                atmodes = 'C'
-            elif atmo == 13:
-                atmodes = 'D'
-            elif atmo == 14:
-                atmodes = 'E'
+            if habitableZone <= 10:
+                habDM = -4
+            elif habitableZone >= 90:
+                habDM = 4
+
+            if atmosphere <= 1:
+                Temperature = 1
             else:
-                atmodes = 'F'
+                calcTemp = baseTemperature + atmosphereDM + habDM
+                if calcTemp <= 2:
+                    Temperature = 2
+                elif calcTemp <= 4:
+                    Temperature = 3
+                elif calcTemp <= 9:
+                    Temperature = 4
+                elif calcTemp <= 11:
+                    Temperature = 5
+                else:
+                    Temperature = 6
 
-            """
-            Temperature
-            2d6 +- AtmosphereMods +- HabZoneLocation
-            """
-            worldtempbase = randint(1, 6) + randint(1, 6)
-            habzonevalue = randint(1, 100)
+            # Hydrographics
+            baseHydrographics = roll(2, 6) - 7 + size
+            atmosphereHydroDM = 0
+            temperatureHydroDM = 0
 
-            if atmo < 2:
-                tempA = -30
-                # Swinging temp is arbitrarily set to -30 bc it is outside reachable values for normal gen
-            elif atmo < 4:
-                tempA = worldtempbase - 2
-            elif atmo < 6 or atmo == 14:
-                tempA = worldtempbase - 1
-            elif atmo < 8:
-                tempA = worldtempbase
-            elif atmo < 10:
-                tempA = worldtempbase + 1
-            elif (atmo == 10) or (atmo == 13) or (atmo == 15):
-                tempA = worldtempbase + 2
+            if size <= 1:
+                Hydrographics = 0
             else:
-                tempA = worldtempbase + 6
+                if atmosphere <= 1 or 10 <= atmosphere <= 12:
+                    atmosphereHydroDM = -4
 
-            if (tempA == -30) or (15 < habzonevalue < 86):
-                tempB = tempA
-            elif habzonevalue < 16:
-                tempB = tempA - 4
-            else:
-                tempB = tempA + 4
+                if Temperature == 5:
+                    temperatureHydroDM = -2
+                elif Temperature == 6:
+                    temperatureHydroDM = -4
 
-            """
-            The Final Temperature
-            1 - Swinging Temp
-            2 - Frozen
-            3 - Cold
-            4 - Temperate
-            5 - Hot
-            6 - Roasting
-            """
-            if tempB == -30:
-                worldTemp = 1
-            elif tempB < 3:
-                worldTemp = 2
-            elif tempB < 5:
-                worldTemp = 3
-            elif tempB < 10:
-                worldTemp = 4
-            elif tempB < 12:
-                worldTemp = 5
-            else:
-                worldTemp = 6
+                Hydrographics = baseHydrographics + atmosphereHydroDM + temperatureHydroDM
 
-            """
-            Hydrographics
-            """
-            baseWetness = randint(1, 6) + randint(1, 6) - 7 + size
+            # Population
+            Population = max(1, roll(2, 6) - 2)
 
-            if (-1 < atmo < 2) or (9 < atmo < 13):
-                atmoWetness = baseWetness - 4
-            else:
-                atmoWetness = baseWetness
+            # Government
+            Government = clamp(0, roll(2, 6) - 7 + Population, 13)
 
-            if size < 2:
-                wetness = 0
-            elif worldTemp == 5:
-                wetness = atmoWetness - 2
-            elif worldTemp == 6:
-                wetness = atmoWetness - 6
-            else:
-                wetness = atmoWetness
+            # Law Level
+            Law_Level = clamp(0, roll(2, 6) - 7 + Government, 9)
 
-            if wetness < 0:
-                wetness = 0
-            elif wetness > 9:
-                wetness = 'A'
+            # Starport
+            Starport = roll(2, 6)
 
-            """
-            Population
-            """
-            ultraPop = randint(1, 100)
-            if ultraPop == 100:
-                population = randint(1, 6) + randint(1, 6)
-            elif ultraPop > 95:
-                population = randint(1, 6) + randint(1, 6) - 1
-            else:
-                population = randint(1, 6) + randint(1, 6) - 2
-
-            if population == 10:
-                popdes = 'A'
-            elif population == 11:
-                popdes = 'B'
-            elif population == 12:
-                popdes = 'C'
-            elif population == 13:
-                popdes = 'D'
-            elif population == 14:
-                popdes = 'E'
-            elif population == 15:
-                popdes = 'F'
-            else:
-                popdes = population
-
-            """
-            Gov't
-            """
-            baseGovt = randint(1, 6) + randint(1, 6) - 7 + population
-
-            if baseGovt == 10:
-                govtdes = 'A'
-            elif baseGovt == 11:
-                govtdes = 'B'
-            elif baseGovt == 12:
-                govtdes = 'C'
-            elif baseGovt >= 13:
-                govtdes = 'D'
-            elif (baseGovt < 0) and (population > 5):
-                govtdes = 7
-            elif baseGovt < 0:
-                govtdes = 0
-            else:
-                govtdes = baseGovt
-
-            """
-            Minor Factions to be added whn I can actually display them
-            """
-
-            """
-            Law Level
-            """
-            lawdes = clamp(0, randint(1, 6) + randint(1, 6) - 7 + baseGovt, 9)
-
-            """
-            Starport
-            """
-            starport = randint(1, 6) + randint(1, 6)
-            if starport == 2:
-                stardes = 'X'
-            elif starport < 5:
-                stardes = 'E'
-            elif starport < 7:
-                stardes = 'D'
-            elif starport < 9:
-                stardes = 'C'
-            elif starport < 11:
-                stardes = 'B'
-            else:
-                stardes = 'A'
-
-            """
-            Starport Fixtures and Bases
-            """
-            # Coming Soon^(tm)
-            """
-            Tech Level
-            """
+            # Tech Level
             baseTL = randint(1, 6)
 
-            if starport == 'A':
+            if 11 <= Starport <= 12:
                 starTL = baseTL + 6
-            elif starport == 'B':
+            elif 9 <= Starport <= 10:
                 starTL = baseTL + 4
-            elif starport == 'C':
+            elif 7 <= Starport <= 8:
                 starTL = baseTL + 2
-            elif starport == 'X':
+            elif Starport == 2:
                 starTL = baseTL - 4
             else:
                 starTL = baseTL
@@ -279,98 +169,60 @@ class ssMap:
             else:
                 sizeTL = starTL
 
-            if (0 <= atmo <= 3) or (10 <= atmo <= 15):
+            if (0 <= atmosphere <= 3) or (10 <= atmosphere <= 15):
                 atmoTL = sizeTL + 1
             else:
                 atmoTL = sizeTL
 
-            if wetness == 0 or wetness == 9:
+            if Hydrographics == 0 or Hydrographics == 9:
                 hydroTL = atmoTL + 1
-            elif wetness == 'A':
+            elif Hydrographics == 10:
                 hydroTL = atmoTL + 2
             else:
                 hydroTL = atmoTL
 
-            if 1 <= population <= 5 or population == 9:
+            if 1 <= Population <= 5 or Population == 9:
                 popTL = hydroTL + 1
-            elif population == 'A':
+            elif Population == 10:
                 popTL = hydroTL + 2
-            elif population == 'B':
+            elif Population == 11:
                 popTL = hydroTL + 3
-            elif population == 'C':
+            elif Population == 12:
                 popTL = hydroTL + 4
             else:
                 popTL = hydroTL
 
-            if govtdes == 0 or govtdes == 5:
+            if Government == 0 or Government == 5:
                 govTL = popTL + 1
-            elif govtdes == 7:
+            elif Government == 7:
                 govTL = popTL + 2
-            elif govtdes == 'D' or govtdes == 'E':
+            elif Government == 13 or Government == 14:
                 govTL = popTL - 2
             else:
                 govTL = popTL
 
-            if (0 <= atmo <= 1) and (govTL < 8):
+            if (0 <= atmosphere <= 1) and (govTL < 8):
                 finalTL = 8
-            elif (2 <= atmo <= 3) and (govTL < 5):
+            elif (2 <= atmosphere <= 3) and (govTL < 5):
                 finalTL = 5
-            elif (atmo == 4 or atmo == 7 or atmo == 9) and (govTL < 3):
+            elif (atmosphere == 4 or atmosphere == 7 or atmosphere == 9) and (govTL < 3):
                 finalTL = 3
-            elif (atmodes == 'A') and (govTL < 8):
+            elif (atmosphere == 10) and (govTL < 8):
                 finalTL = 8
-            elif (atmodes == 'B') and (govTL < 9):
+            elif (atmosphere == 11) and (govTL < 9):
                 finalTL = 9
-            elif (atmodes == 'C') and (govTL < 10):
+            elif (atmosphere == 12) and (govTL < 10):
                 finalTL = 10
-            elif (13 <= atmo <= 14) and (govTL < 5):
+            elif (13 <= atmosphere <= 14) and (govTL < 5):
                 finalTL = 5
-            elif (atmodes == 'F') and (govTL < 8):
+            elif (atmosphere == 15) and (govTL < 8):
                 finalTL = 8
-            elif govTL < 0:
-                finalTL = 0
             else:
-                finalTL = govTL
+                finalTL = max(0, govTL)
 
-            """
-            Travel Code Display
-            """
-            # Starport
-            tcSPort = Entity(room.x - 5, room.y, str(stardes), libtcod.white, 'Starport Grade')
-            entities.append(tcSPort)
-            # Size, Atmo, Hydro, Pop, Gov't, Law
-            tcSize = Entity(room.x - 3, room.y, str(sizdes), libtcod.white, 'Size')
-            entities.append(tcSize)
-            tcAtmo = Entity(room.x - 2, room.y, str(atmodes), libtcod.white, 'Atmosphere')
-            entities.append(tcAtmo)
-            tcHydro = Entity(room.x - 1, room.y, str(wetness), libtcod.white, 'Hydrographics')
-            entities.append(tcHydro)
-            tcPop = Entity(room.x, room.y, str(popdes), libtcod.white, 'Population')
-            entities.append(tcPop)
-            tcGovt = Entity(room.x + 1, room.y, str(govtdes), libtcod.white, 'Government')
-            entities.append(tcGovt)
-            tcLaw = Entity(room.x + 2, room.y, str(lawdes), libtcod.white, 'Law Level')
-            entities.append(tcLaw)
-            # A dash (-)
-            hyphon = Entity(room.x + 3, room.y, 45, libtcod.white, '-')
-            entities.append(hyphon)
-            # Tech Level
-            stringTL = str(finalTL)
-            if finalTL > 9:
-                TLev1 = Entity(room.x + 4, room.y, stringTL[:1], libtcod.white, 'Tech Level')
-                entities.append(TLev1)
-                TLev2 = Entity(room.x + 5, room.y, stringTL[:-1], libtcod.white, 'Tech Level')
-                entities.append(TLev2)
-            else:
-                TLev = Entity(room.x + 5, room.y, str(finalTL), libtcod.white, 'Tech Level')
-                entities.append(TLev)
+            World = Planet(grid_x, grid_y, size, atmosphere, Temperature, Hydrographics, Population, Government,
+                           Law_Level, finalTL, gas_giant)
 
-            # Display other entities in the Hex
-            placeholder_hex_name = 'Placeholder for Testing'
-            if size == 0:
-                populated_hex = Entity(room.x, room.y - 1, '+', libtcod.white, placeholder_hex_name)
-            elif size < 8:
-                populated_hex = Entity(room.x, room.y - 1, 'o', libtcod.white, placeholder_hex_name)
-            else:
-                populated_hex = Entity(room.x, room.y - 1, 'O', libtcod.white, placeholder_hex_name)
-            entities.append(populated_hex)
+            print(World.grid_x)
+            print(World.grid_y)
+            planets.append(World)
